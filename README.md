@@ -1,3 +1,6 @@
+# Credits
+This is just a fork of an original project https://github.com/Vannevelj/RoslynTester ported to .net 6 for our company purposes. Feel free to use, share and improve in the same spirit as the original project.
+
 # RoslynTester
 
 A library that will help you unit test your Roslyn analyzers. This package contains the default test helpers provided with the Diagnostics + CodeFix solution template but updated for the latest version of Roslyn and with a few enhancements.
