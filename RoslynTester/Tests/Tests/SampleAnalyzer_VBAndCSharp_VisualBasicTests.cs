@@ -1,22 +1,21 @@
 ﻿using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using RoslynTester.Helpers.VisualBasic;
 using Tests.SampleAnalyzer_VBAndCSharp;
 
-namespace Tests.Tests
+namespace Tests.Tests;
+
+public class SampleAnalyzer_VBAndCSharp_VisualBasicTests : VisualBasicCodeFixVerifier
 {
-    [TestClass]
-    public class SampleAnalyzer_VBAndCSharp_VisualBasicTests : VisualBasicCodeFixVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer => new SampleAnalyzer_VBAndCSharpAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider => new SampleAnalyzer_VBAndCSharpCodeFix();
+
+    [Test]
+    public void SampleAnalyzer_AddsFlagsAttribute()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer => new SampleAnalyzer_VBAndCSharpAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider => new SampleAnalyzer_VBAndCSharpCodeFix();
-
-        [TestMethod]
-        public void SampleAnalyzer_AddsFlagsAttribute()
-        {
-            var original = @"
+        var original = @"
 Module Module1
     Enum Foo
         Bar
@@ -24,7 +23,7 @@ Module Module1
     End Enum
 End Module";
 
-            var result = @"
+        var result = @"
 Imports System
 Module Module1
     <Flags>
@@ -34,15 +33,15 @@ Module Module1
     End Enum
 End Module";
 
-            VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
+        VerifyFix(original, result);
+    }
 
-        [TestMethod]
-        public void SampleAnalyzer_AddsFlagsAttribute_DoesNotAddDuplicateUsingSystem()
-        {
-            var original =
-@"Imports System
+    [Test]
+    public void SampleAnalyzer_AddsFlagsAttribute_DoesNotAddDuplicateUsingSystem()
+    {
+        var original =
+            @"Imports System
 Module Module1
     Enum Foo
         Bar
@@ -51,8 +50,8 @@ Module Module1
 
 End Module";
 
-            var result =
-@"Imports System
+        var result =
+            @"Imports System
 Module Module1
     <Flags>
     Enum Foo
@@ -62,14 +61,14 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
+        VerifyFix(original, result);
+    }
 
-        [TestMethod]
-        public void SampleAnalyzer_AddsFlagsAttribute_OnlyAddsFlagsAttribute()
-        {
-            var original = @"
+    [Test]
+    public void SampleAnalyzer_AddsFlagsAttribute_OnlyAddsFlagsAttribute()
+    {
+        var original = @"
 Imports System
 Module Module1
     <Obsolete(""I'm obsolete"")>
@@ -80,7 +79,7 @@ Module Module1
 
 End Module";
 
-            var result = @"
+        var result = @"
 Imports System
 Module Module1
     <Obsolete(""I'm obsolete"")>
@@ -92,14 +91,14 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
+        VerifyFix(original, result);
+    }
 
-        [TestMethod]
-        public void SampleAnalyzer_EnumHasXmlDocComment_OnlyAddsFlagsAttribute()
-        {
-            var original = @"
+    [Test]
+    public void SampleAnalyzer_EnumHasXmlDocComment_OnlyAddsFlagsAttribute()
+    {
+        var original = @"
 Module Module1
     ''' <summary>
     ''' Doc comment for Foo...
@@ -111,7 +110,7 @@ Module Module1
 
 End Module";
 
-            var result = @"
+        var result = @"
 Imports System
 Module Module1
     ''' <summary>
@@ -125,15 +124,15 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
+        VerifyFix(original, result);
+    }
 
-        [TestMethod]
-        public void SampleAnalyzer_AddsFlagsAttribute_AddsUsingSystemWhenUsingSystemDotAnything()
-        {
-            var original =
-@"Imports System.Text
+    [Test]
+    public void SampleAnalyzer_AddsFlagsAttribute_AddsUsingSystemWhenUsingSystemDotAnything()
+    {
+        var original =
+            @"Imports System.Text
 Module Module1
     Enum Foo
         Bar
@@ -142,8 +141,8 @@ Module Module1
 
 End Module";
 
-            var result =
-@"Imports System.Text
+        var result =
+            @"Imports System.Text
 Imports System
 Module Module1
     <Flags>
@@ -154,14 +153,14 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, SampleAnalyzer_VBAndCSharpAnalyzer.Rule.MessageFormat.ToString());
+        VerifyFix(original, result);
+    }
 
-        [TestMethod]
-        public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAlreadyApplied()
-        {
-            var original = @"
+    [Test]
+    public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAlreadyApplied()
+    {
+        var original = @"
 Imports System
 Module Module1
     <Flags>
@@ -172,13 +171,13 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original);
-        }
+        VerifyDiagnostic(original);
+    }
 
-        [TestMethod]
-        public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAttributeAlreadyApplied()
-        {
-            var original = @"
+    [Test]
+    public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAttributeAlreadyApplied()
+    {
+        var original = @"
 Imports System
 Module Module1
     <FlagsAttribute>
@@ -189,13 +188,13 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original);
-        }
+        VerifyDiagnostic(original);
+    }
 
-        [TestMethod]
-        public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAlreadyAppliedAsChain()
-        {
-            var original = @"
+    [Test]
+    public void SampleAnalyzer_InspectionDoesNotReturnWhenFlagsAlreadyAppliedAsChain()
+    {
+        var original = @"
 Imports System
 Module Module1
     <Obsolete(""I'm obsolete""), Flags>
@@ -206,7 +205,6 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original);
-        }
+        VerifyDiagnostic(original);
     }
 }

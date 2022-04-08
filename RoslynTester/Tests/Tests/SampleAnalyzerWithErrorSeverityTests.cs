@@ -1,23 +1,22 @@
 ﻿using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using RoslynTester.Helpers.CSharp;
 using RoslynTester.Helpers.Testing;
 using Tests.SampleAnalyzerWithErrorSeverity;
 
-namespace Tests.Tests
+namespace Tests.Tests;
+
+public class SampleAnalyzerWithErrorSeverityTests : CSharpCodeFixVerifier
 {
-    [TestClass]
-    public class SampleAnalyzerWithErrorSeverityTests : CSharpCodeFixVerifier
+    protected override CodeFixProvider CodeFixProvider => new TestCodeFixWithErrorSeverity();
+
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer => new TestAnalyzerWithErrorSeverity();
+
+    [Test]
+    public void Analyzer_With_MessageDiagnostic_DoesNotThrowUncompilable()
     {
-        protected override CodeFixProvider CodeFixProvider => new TestCodeFixWithErrorSeverity();
-
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer => new TestAnalyzerWithErrorSeverity();
-
-        [TestMethod]
-        public void Analyzer_With_MessageDiagnostic_DoesNotThrowUncompilable()
-        {
-            var original = @"
+        var original = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -33,7 +32,7 @@ namespace Tests.Tests
         }
     }";
 
-            var result = @"
+        var result = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -49,15 +48,14 @@ namespace Tests.Tests
         }
     }";
 
-            VerifyDiagnostic(original, string.Format(TestAnalyzerWithErrorSeverity.Message, "Method"));
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, string.Format(TestAnalyzerWithErrorSeverity.Message, "Method"));
+        VerifyFix(original, result);
+    }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidCodeException))]
-        public void Analyzer_WithUnCompilableCode_ThrowsException()
-        {
-            var original = @"
+    [Test]
+    public void Analyzer_WithUnCompilableCode_ThrowsException()
+    {
+        var original = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -73,7 +71,7 @@ namespace Tests.Tests
         }
     }";
 
-            var result = @"
+        var result = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -89,8 +87,7 @@ namespace Tests.Tests
         }
     }";
 
-            VerifyDiagnostic(original, string.Format(TestAnalyzerWithErrorSeverity.Message, "Method"));
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, string.Format(TestAnalyzerWithErrorSeverity.Message, "Method"));
+        Assert.Throws<InvalidCodeException>(() => VerifyFix(original, result));
     }
 }

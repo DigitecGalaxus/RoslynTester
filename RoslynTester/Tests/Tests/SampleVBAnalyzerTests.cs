@@ -1,22 +1,21 @@
 ﻿using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using RoslynTester.Helpers.VisualBasic;
 using Tests.SampleVBAnalyzer;
 
-namespace Tests.Tests
+namespace Tests.Tests;
+
+public class AttributeWithEmptyArgumentListTests : VisualBasicCodeFixVerifier
 {
-    [TestClass]
-    public class AttributeWithEmptyArgumentListTests : VisualBasicCodeFixVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer => new VBTestAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider => new VBTestCodeFix();
+
+    [Test]
+    public void Analyzer_WithVisualBasicCode_WithCodeFix()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer => new VBTestAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider => new VBTestCodeFix();
-
-        [TestMethod]
-        public void Analyzer_WithVisualBasicCode_WithCodeFix()
-        {
-            var original = @"
+        var original = @"
 Imports System
 
 Module Module1
@@ -26,7 +25,7 @@ Module Module1
 
 End Module";
 
-            var result = @"
+        var result = @"
 Imports System
 
 Module Module1
@@ -36,14 +35,14 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original, VBTestAnalyzer.Rule.MessageFormat.ToString());
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, VBTestAnalyzer.Rule.MessageFormat.ToString());
+        VerifyFix(original, result);
+    }
 
-        [TestMethod]
-        public void Analyzer_WithVisualBasicCode_WithDiagnostic()
-        {
-            var original = @"
+    [Test]
+    public void Analyzer_WithVisualBasicCode_WithDiagnostic()
+    {
+        var original = @"
 Imports System
 
 Module Module1
@@ -53,7 +52,6 @@ Module Module1
 
 End Module";
 
-            VerifyDiagnostic(original);
-        }
+        VerifyDiagnostic(original);
     }
 }

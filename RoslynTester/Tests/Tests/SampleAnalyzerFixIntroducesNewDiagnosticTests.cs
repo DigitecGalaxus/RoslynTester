@@ -1,22 +1,21 @@
 ﻿using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using RoslynTester.Helpers.CSharp;
 using Tests.SampleAnalyzer_FixIntroducesNewDiagnostic;
 
-namespace Tests.Tests
+namespace Tests.Tests;
+
+public class SampleAnalyzerFixIntroducesNewDiagnosticTests : CSharpCodeFixVerifier
 {
-    [TestClass]
-    public class SampleAnalyzerFixIntroducesNewDiagnosticTests : CSharpCodeFixVerifier
+    protected override CodeFixProvider CodeFixProvider => new SampleAnalyzerFixIntroducesNewDiagnosticCodeFix();
+
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer => new SampleAnalyzerFixIntroducesNewDiagnosticAnalyzer();
+
+    [Test]
+    public void Analyzer_FixIntroducesNewDiagnostic()
     {
-        protected override CodeFixProvider CodeFixProvider => new SampleAnalyzerFixIntroducesNewDiagnosticCodeFix();
-
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer => new SampleAnalyzerFixIntroducesNewDiagnosticAnalyzer();
-
-        [TestMethod]
-        public void Analyzer_FixIntroducesNewDiagnostic()
-        {
-            var original = @"
+        var original = @"
 using System;
 
 namespace ConsoleApplication1
@@ -30,7 +29,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var result = @"
+        var result = @"
 using System;
 
 namespace ConsoleApplication1
@@ -43,8 +42,7 @@ namespace ConsoleApplication1
         }
     }
 }";
-            VerifyDiagnostic(original, string.Format(SampleAnalyzerFixIntroducesNewDiagnosticAnalyzer.Rule.MessageFormat.ToString(), "short", "Int16"));
-            VerifyFix(original, result, allowedNewCompilerDiagnosticsId: "CS8019");
-        }
+        VerifyDiagnostic(original, string.Format(SampleAnalyzerFixIntroducesNewDiagnosticAnalyzer.Rule.MessageFormat.ToString(), "short", "Int16"));
+        VerifyFix(original, result, allowedNewCompilerDiagnosticsId: "CS8019");
     }
 }

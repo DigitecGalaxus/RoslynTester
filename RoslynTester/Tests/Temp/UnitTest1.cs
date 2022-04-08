@@ -1,17 +1,16 @@
 ﻿using System;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using RoslynTester.Helpers.CSharp;
 
-namespace Tests.Temp
+namespace Tests.Temp;
+
+public class UnitTest1 : CSharpDiagnosticVerifier
 {
-    [TestClass]
-    public class UnitTest1 : CSharpDiagnosticVerifier
+    [Test]
+    public void RedundantPrivateSetter_PartialClass_IrrelevantIdentifier()
     {
-        [TestMethod]
-        public void RedundantPrivateSetter_PartialClass_IrrelevantIdentifier()
-        {
-            var firstTree = @"
+        var firstTree = @"
 namespace ConsoleApplication1
 {
     partial class MyClass
@@ -25,7 +24,7 @@ namespace ConsoleApplication1
     }
 }";
 
-            var secondTree = @"
+        var secondTree = @"
 namespace ConsoleApplication1
 {
     partial class MyClass
@@ -37,9 +36,8 @@ namespace ConsoleApplication1
     }
 }";
 
-            VerifyDiagnostic(new[] { firstTree, secondTree }, string.Format(RedundantPrivateSetterAnalyzer.Rule.MessageFormat.ToString(), "MyProperty"));
-        }
-
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer => new RedundantPrivateSetterAnalyzer();
+        VerifyDiagnostic(new[] { firstTree, secondTree }, string.Format(RedundantPrivateSetterAnalyzer.Rule.MessageFormat.ToString(), "MyProperty"));
     }
+
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer => new RedundantPrivateSetterAnalyzer();
 }

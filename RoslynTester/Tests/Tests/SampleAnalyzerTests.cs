@@ -1,26 +1,23 @@
-﻿using System;
-using Microsoft.CodeAnalysis.CodeFixes;
+﻿using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RoslynTester;
+using NUnit.Framework;
 using RoslynTester.DiagnosticResults;
 using RoslynTester.Helpers.CSharp;
 using RoslynTester.Helpers.Testing;
 using Tests.SampleAnalyzer;
 
-namespace Tests.Tests
+namespace Tests.Tests;
+
+public class SampleAnalyzerTests : CSharpCodeFixVerifier
 {
-    [TestClass]
-    public class SampleAnalyzerTests : CSharpCodeFixVerifier
+    protected override CodeFixProvider CodeFixProvider => new TestCodeFix();
+
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer => new TestAnalyzer();
+
+    [Test]
+    public void Analyzer_With_LocationDiagnostic()
     {
-        protected override CodeFixProvider CodeFixProvider => new TestCodeFix();
-
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer => new TestAnalyzer();
-
-        [TestMethod]
-        public void Analyzer_With_LocationDiagnostic()
-        {
-            var original = @"
+        var original = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -36,7 +33,7 @@ namespace Tests.Tests
         }
     }";
 
-            var result = @"
+        var result = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -52,26 +49,26 @@ namespace Tests.Tests
         }
     }";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = TestAnalyzer.DiagnosticId,
-                Message = string.Format(TestAnalyzer.Message, "Method"),
-                Severity = TestAnalyzer.Severity,
-                Locations =
-                    new[]
-                    {
-                        new DiagnosticResultLocation("Test0.cs", 10, 24)
-                    }
-            };
-
-            VerifyDiagnostic(original, expectedDiagnostic);
-            VerifyFix(original, result);
-        }
-
-        [TestMethod]
-        public void Analyzer_With_MessageDiagnostic()
+        var expectedDiagnostic = new DiagnosticResult
         {
-            var original = @"
+            Id = TestAnalyzer.DiagnosticId,
+            Message = string.Format(TestAnalyzer.Message, "Method"),
+            Severity = TestAnalyzer.Severity,
+            Locations =
+                new[]
+                {
+                    new DiagnosticResultLocation("Test0.cs", 10, 24)
+                }
+        };
+
+        VerifyDiagnostic(original, expectedDiagnostic);
+        VerifyFix(original, result);
+    }
+
+    [Test]
+    public void Analyzer_With_MessageDiagnostic()
+    {
+        var original = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -87,7 +84,7 @@ namespace Tests.Tests
         }
     }";
 
-            var result = @"
+        var result = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -103,15 +100,14 @@ namespace Tests.Tests
         }
     }";
 
-            VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
+        VerifyFix(original, result);
+    }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidCodeException))]
-        public void Analyzer_ThrowsExceptionForBrokenCode_Diagnostic()
-        {
-            var original = @"
+    [Test]
+    public void Analyzer_ThrowsExceptionForBrokenCode_Diagnostic()
+    {
+        var original = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -127,14 +123,13 @@ namespace Tests.Tests
         }
     }";
 
-            VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
-        }
+        Assert.Throws<InvalidCodeException>(() => VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method")));
+    }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidCodeException))]
-        public void Analyzer_ThrowsExceptionForBrokenCode_CodeFix()
-        {
-            var original = @"
+    [Test]
+    public void Analyzer_ThrowsExceptionForBrokenCode_CodeFix()
+    {
+        var original = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -150,7 +145,7 @@ namespace Tests.Tests
         }
     }";
 
-            var result = @"
+        var result = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -166,13 +161,13 @@ namespace Tests.Tests
         }
     }";
 
-            VerifyFix(original, result);
-        }
+        Assert.Throws<InvalidCodeException>(() => VerifyFix(original, result));
+    }
 
-        [TestMethod]
-        public void Analyzer_Without_Diagnostic()
-        {
-            var original = @"
+    [Test]
+    public void Analyzer_Without_Diagnostic()
+    {
+        var original = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -187,13 +182,13 @@ namespace Tests.Tests
             }
         }
     }";
-            VerifyDiagnostic(original);
-        }
+        VerifyDiagnostic(original);
+    }
 
-        [TestMethod]
-        public void Analyzer_With_MessageDiagnostic_FixProducesNewDiagnostic()
-        {
-            var original = @"
+    [Test]
+    public void Analyzer_With_MessageDiagnostic_FixProducesNewDiagnostic()
+    {
+        var original = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -209,7 +204,7 @@ namespace Tests.Tests
         }
     }";
 
-            var result = @"
+        var result = @"
     using System;
     using System.Text;
     using System.Threading.Tasks;
@@ -225,8 +220,7 @@ namespace Tests.Tests
         }
     }";
 
-            VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
-            VerifyFix(original, result);
-        }
+        VerifyDiagnostic(original, string.Format(TestAnalyzer.Message, "Method"));
+        VerifyFix(original, result);
     }
 }
